@@ -1,0 +1,139 @@
+
+#define buzzer 7 //connect buzzer to pin 7 in arduino board
+
+long timeTaken, halfDistance; //number storage 32 bits
+millisDelay buzzerDelay; 	// the delay object; declare object buzzerDelay of type millisDelay
+long thefirstDistance, currentDistance; //number storage 32 bits
+unsigned int alarmTone=900; //tone method accepts unsigned int datatype for frequency
+
+};
+
+void setup() { 
+  // set up 16x2 LCD	
+  lcd.begin(16,2); 
+  pinMode(buzzer, OUTPUT); //buzzer as Output
+  
+}
+
+void loop() {
+	if (alarmSet){  //if user chooses A to Activate alarm, this runs
+		alarmSet = false; //toggle alarmSet
+		alarmActivate = true;	
+		thefirstDistance = getDistance(); //we get the distance from the sensor and store in thefirstDistance. This will be our distance without any interference in front of our ultrasonic sensor.
+	}
+	if (alarmActivate) {						//then this runs after alarmSet
+		currentDistance = getDistance()+5;		//we get the current distance from sensor with getDistance() callback method and store in currentDistance. We added 5 cm for any small error uncertainties to compensate unnecessary alarm trigger.
+		if (currentDistance < thefirstDistance){  //we use this to constantly check if there is any invasion in our environment. If currentDistance is less than thefirstDistance, this means something has appeared infront of our sensor.
+			lcd.clear();
+			buzzerDelay.Start(10000);		//this uses method from millisDelay.h header file. Start(delay time) starts the timer for 10 seconds but this is non-blocking method. The code below it still runs while the timer is running. 
+			alarmBuzzDelay = true;			//set it to true
+			enterPassword();					//callback this method. Should enter correct password to stop the alarm								
+		
+	
+	
+		}
+		pressedKey = myKeypad.getKey();			//gets user keypad input
+		if (pressedKey == 'A'){					//if A selected, alarmSet is true.
+			tone(buzzer, 2000, 200);			//tone(buzzer, tone frequency, time to buzz), here 1000 Hz frequency tone buzzes for 200ms.
+			alarmSet = true;
+		}			
+		else if (pressedKey == 'B') {			//shows option to Password change or change alarm frequency tone
+				lcd.clear();
+				tone(buzzer, 1000, 100);		//buzzes 1000Hz frequency tone for 100ms
+				
+				if (pressedKey == 'A') {			//A for password change
+					lcd.clear();
+					int a=1;
+					tone(buzzer, 1000, 100);
+					lcd.setCursor(0,0);
+					lcd.print("Current Password");
+					lcd.setCursor(0,1);
+					lcd.print(">");
+					passChange = true;
+					
+							tone(buzzer, 2000, 100);
+							lcd.setCursor(a,1);			// password enter cursor set ex. 12_	
+							delay(1000);				//wait 1 second then
+							lcd.print("*");				//hide password with *
+							a++;							
+							}
+						}
+						
+						}
+						if (pressedKey = '*') {				//if * pressed
+							a=1;
+							tone(buzzer, 2000, 100);
+							
+									if (a > 5 || pressedKey == '#') {
+										tempPassword = "";
+										a=1;
+										tone(buzzer, 2000, 100);
+										lcd.clear();
+										lcd.setCursor(0,0);
+										lcd.print("New Password:");
+										lcd.setCursor(0,1);
+										lcd.print(">");
+									}
+									if ( pressedKey == '*') {
+										a=1;
+										tone(buzzer, 2000, 100);
+										password = tempPassword;
+										passChangeMode = false;
+										passChange = false;
+										setupMode = true;
+									}            
+								}
+							}
+						}
+						
+					}
+				}
+				else if (pressedKey = 'B'){   //set buzzer tone here
+					setAlarmTone = true;
+					
+								tone(buzzer,2000,100);	//buzzes 2000Hz for 100ms
+								j++;
+							}
+															
+								tone(buzzer,alarmTone,3000); //this produces the sample alarm tone set by the user for 3 seconds
+								setAlarmTone = false;	//this will help exit the loop
+								}
+								else {
+									j=4;
+									lcd.clear();
+									lcd.setCursor(0,0);
+									lcd.print("Enter again..");
+									tone(buzzer,1000,1000); // this buzzes for invalid user input
+									lcd.clear();
+									lcd.setCursor(0,0);
+									lcd.print("Set Frequency");
+									lcd.setCursor(0,1);
+									lcd.print("Hz >");	
+								}
+						
+
+      while(flagme) {			//this does not run until the buzzerDelay completes 10 second
+      if (alarmBuzzDelay && buzzerDelay.justFinished()) {	//so until alarmBuzzDelay is true and buzzerDelay has completed 10 second only then the alarm starts buzzing
+		  alarmBuzzDelay = false;
+		  tone(buzzer, alarmTone);		  //the alarm will continue buzzing while user has to enter correct password
+	  }
+	
+      }    
+    }
+}
+
+//measure distance from the ultrasonic sensor
+long getDistance(){			//the distance measured by the sensor is stored in long datatype which is returned by this function getDistance
+  
+  digitalWrite(trigPin, LOW); // this Clears the trigPin with low voltage
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH); // and sends sound at 40khz
+  delayMicroseconds(10);		//it requires 10 microseconds to send out 8 sonic burst which will travel at the speed of sound. This is captured by the echoPin.
+  digitalWrite(trigPin, LOW); //now we turn off trigPin
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  timeTaken = pulseIn(echoPin, HIGH); //this is the time taken to receive the signal bouncing off the surface
+  halfDistance = timeTaken*0.034/2;		//sound travels at 340 m/s or 0.034 cm/µs, and as it gives double the distance we require so, we now divide it by 2 to get distance we need
+  return halfDistance; //this returns the halfDistance value
+}
+
